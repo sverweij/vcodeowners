@@ -1,0 +1,12 @@
+# This is a comment
+#! This is a comment that'll be ignored
+
+* @vco-admins @vco-maintainers @vco-contributors
+
+[admin][2]
+.github/ @vco-admins # Inline comment
+
+[maintainer][3]
+tools/ @vco-maintainers @vco-admins
+
+src/ @vco-contributors @vco-maintainers

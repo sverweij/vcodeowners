@@ -1,0 +1,207 @@
+[
+  {
+    "type": "comment",
+    "lineNo": 1,
+    "raw": "# This is a comment",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "ignorable-comment",
+    "lineNo": 2,
+    "raw": "#! This is a comment that'll be ignored",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "empty",
+    "lineNo": 3,
+    "raw": "",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "rule",
+    "lineNo": 4,
+    "raw": "* @vco-admins @vco-maintainers @vco-contributors",
+    "rulePattern": "*",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": " ",
+    "users": [
+      {
+        "type": "user-or-group",
+        "name": "@vco-admins"
+      },
+      {
+        "type": "user-or-group",
+        "name": "@vco-maintainers"
+      },
+      {
+        "type": "user-or-group",
+        "name": "@vco-contributors"
+      }
+    ],
+    "inlineComment": ""
+  },
+  {
+    "type": "empty",
+    "lineNo": 5,
+    "raw": "",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "section-heading",
+    "lineNo": 6,
+    "raw": "[admin][2]",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "admin",
+    "sectionMinApprovers": 2,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "rule",
+    "lineNo": 7,
+    "raw": ".github/ @vco-admins",
+    "rulePattern": ".github/",
+    "ruleSection": "admin",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": " ",
+    "users": [
+      {
+        "type": "user-or-group",
+        "name": "@vco-admins"
+      }
+    ],
+    "inlineComment": ""
+  },
+  {
+    "type": "empty",
+    "lineNo": 8,
+    "raw": "",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "section-heading",
+    "lineNo": 9,
+    "raw": "[maintainer][3]",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "maintainer",
+    "sectionMinApprovers": 3,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "rule",
+    "lineNo": 10,
+    "raw": "tools/ @vco-maintainers @vco-admins",
+    "rulePattern": "tools/",
+    "ruleSection": "maintainer",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": " ",
+    "users": [
+      {
+        "type": "user-or-group",
+        "name": "@vco-maintainers"
+      },
+      {
+        "type": "user-or-group",
+        "name": "@vco-admins"
+      }
+    ],
+    "inlineComment": ""
+  },
+  {
+    "type": "empty",
+    "lineNo": 11,
+    "raw": "",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "rule",
+    "lineNo": 12,
+    "raw": "src/ @vco-contributors @vco-maintainers",
+    "rulePattern": "src/",
+    "ruleSection": "maintainer",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": " ",
+    "users": [
+      {
+        "type": "user-or-group",
+        "name": "@vco-contributors"
+      },
+      {
+        "type": "user-or-group",
+        "name": "@vco-maintainers"
+      }
+    ],
+    "inlineComment": ""
+  },
+  {
+    "type": "empty",
+    "lineNo": 13,
+    "raw": "",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  }
+]

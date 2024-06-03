@@ -1,0 +1,3 @@
+^[optional section]             @maintainers @administrators
+[mandatory section]             @maintainers
+[section with min approvers][2] @maintainers

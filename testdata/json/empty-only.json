@@ -1,0 +1,15 @@
+[
+  {
+    "type": "empty",
+    "lineNo": 1,
+    "raw": "    ",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  }
+]

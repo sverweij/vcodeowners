@@ -1,0 +1,54 @@
+[
+  {
+    "type": "comment",
+    "lineNo": 1,
+    "raw": "# this is a regular comment",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "comment",
+    "lineNo": 2,
+    "raw": "# and this also",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "ignorable-comment",
+    "lineNo": 3,
+    "raw": "#! this is a comment that can be ignored",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "comment",
+    "lineNo": 4,
+    "raw": "# but this ain't",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "users": null,
+    "inlineComment": ""
+  }
+]
