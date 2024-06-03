@@ -1,6 +1,10 @@
 ## What?
 
 > [!NOTE]
+>
+> Encouraged: **use the original [virtual-code-owners](https://github.com/sverweij/virtual-code-owners)**
+> which was written in TypeScript and is still actively maintained.
+>
 > This is a re-implementation of [virtual-code-owners](https://github.com/sverweij/virtual-code-owners) 
 > in go. I made this because I wanted to learn go and I thought this would be a 
 > good project to start with. If you need the functionality of the original
@@ -80,7 +84,7 @@ ones are defined in `virtual-teams.json`.
 ### virtual-teams.json
 
 A valid YAML file that contains a list of teams and their members.
-Update it whenever you have new team members and run `npx virtual-code-owners`
+Update it whenever you have new team members and run `vcodeowners`
 to keep CODEOWNERS current.
 
 ```yaml
@@ -134,8 +138,7 @@ Running `vcodeowners` will combine these into a CODEOWNERS file like this:
 #
 #   - edit .github/VIRTUAL-CODEOWNERS.txt
 #   - and/ or add team members to .github/virtual-teams.json
-#   - run 'npx virtual-code-owners' (or 'npx virtual-code-owners --emitLabeler' if you also
-#     want to generate a .github/labeler.yml)
+#   - run 'vcodeowners'
 #
 
 # catch-all to ensure there at least _is_ a code owner, even when
@@ -192,7 +195,7 @@ Yes.
 
 It might be you already have a team or two defined, but just want to use
 _additional_ teams. In that case just don't specify the already-defined teams
-in `virtual-teams.json` and _virtual-code-owners_ will leave them alone.
+in `virtual-teams.json` and _vcodeowners_ will leave them alone.
 
 ### Can I still use usernames in `VIRTUAL-CODEOWNERS.txt`?
 
@@ -204,7 +207,7 @@ team name and _vcodeowners_ will leave the real name alone.
 
 ### What validations does vcodeowners perform?
 
-virtual-code-owners checks for basic CODEOWNERS format errors and invalid
+vcodeowners checks for basic CODEOWNERS format errors and invalid
 user/team names but doesn't verify their existence in the project.
 
 - valid user/team names start with an `@` or are an e-mail address
@@ -254,4 +257,4 @@ who want to have clear code ownership can either:
 - Maintain a CODEOWNERS file with code assigned to large lists of individuals.  
   An option, but laborious to maintain, even for smaller projects
 
-This is where `virtual-code-owners` comes in.
+This is where `virtual-code-owners` and `vcodeowners` come in.
