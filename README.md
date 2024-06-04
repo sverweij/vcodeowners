@@ -83,11 +83,11 @@ ones are defined in `virtual-teams.json`.
 
 ### virtual-teams.json
 
-A valid YAML file that contains a list of teams and their members.
+A valid JSON file that contains a list of teams and their members.
 Update it whenever you have new team members and run `vcodeowners`
 to keep CODEOWNERS current.
 
-```yaml
+```json
 # json-language-server: $schema=https://raw.githubusercontent.com/sverweij/virtual-code-owners/main/src/virtual-teams.schema.json
 {
   "ch/after-sales": [

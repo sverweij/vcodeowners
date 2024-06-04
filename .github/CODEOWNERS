@@ -1,0 +1,9 @@
+# catch-all to ensure there at least _is_ a code owner
+*              @mcmeadow @sverweij
+
+# [admin-only]  
+.github/        @sverweij
+go.mod          @sverweij
+go.sum          @sverweij
+
+

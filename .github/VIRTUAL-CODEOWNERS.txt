@@ -1,0 +1,11 @@
+#! this is not the CODEOWNERS file - to get that one run
+#!   vcodeowners
+#!
+# catch-all to ensure there at least _is_ a code owner
+*              @maintainers
+
+# [admin-only]  
+.github/        @admins
+go.mod          @admins
+go.sum          @admins
+

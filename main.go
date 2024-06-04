@@ -8,10 +8,6 @@ import (
 
 const VERSION = "0.0.1"
 
-func formatValid(format string) bool {
-	return format == "codeowners" || format == "json"
-}
-
 func validateValid(validate string) bool {
 	var validValidateOptions = map[string]bool{
 		"fail": true,
@@ -24,14 +20,26 @@ func validateValid(validate string) bool {
 func main() {
 
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s:\n", os.Args[0])
+		fmt.Fprint(flag.CommandLine.Output(), "Usage: vcodeowners [options]\n\n")
+		fmt.Fprint(flag.CommandLine.Output(), "Merges a VIRTUAL-CODEOWNERS.txt and a virtual-teams.yml into CODEOWNERS\n\n")
 		flag.PrintDefaults()
 	}
 
-	formatPtr := flag.String("format", "codeowners", "output format")
-	versionPtr := flag.Bool("version", false, "print version")
+	/*
+			Options from virtual-code-owners not yet implemented:
+		    --emitLabeler                 Whether or not to emit a labeler.yml to be
+		                                  used with actions/labeler
+		                                  (default: false)
+		    --labelerLocation [file-name] The location of the labeler.yml file
+		                                  (default: ".github/labeler.yml")
+		    --dryRun                      Just validate inputs, don't generate
+		                                  outputs (default: false)
+	*/
+	versionPtr := flag.Bool("version", false, "output the version number")
+	virtualCodeOwnersPtr := flag.String("virtualCodeOwners", ".github/VIRTUAL-CODEOWNERS.txt", "A CODEOWNERS file with team names in them that are defined in a virtual teams file")
+	teamMapPtr := flag.String("virtualTeams", ".github/virtual-teams.json", "A JSON file listing teams and their members")
+	codeOwnersPtr := flag.String("codeOwners", ".github/CODEOWNERS", "The CODEOWNERS file to merge the virtual teams into")
 	validatePtr := flag.String("validate", "fail", "fail: exit on syntax errors, warn: print syntax errors & continue, skip: ignore syntax errors")
-	teamMapPtr := flag.String("team-map", "", "file path to team map json file")
 
 	flag.Parse()
 
@@ -39,21 +47,12 @@ func main() {
 		fmt.Println(VERSION)
 		os.Exit(0)
 	}
-
-	if len(flag.Args()) <= 0 {
-		fmt.Fprintln(flag.CommandLine.Output(), "Please provide a CODEOWNERS file")
-		os.Exit(1)
-	}
-	if !formatValid(*formatPtr) {
-		fmt.Fprintln(flag.CommandLine.Output(), "Invalid format option. Valid options: codeowners, json")
-		os.Exit(1)
-	}
 	if !validateValid(*validatePtr) {
 		fmt.Fprintln(flag.CommandLine.Output(), "Invalid validate option. Valid options: fail, warn, skip")
 		os.Exit(1)
 	}
 
-	bytes, readFileError := os.ReadFile(flag.Arg(0))
+	bytes, readFileError := os.ReadFile(*virtualCodeOwnersPtr)
 
 	if readFileError != nil {
 		fmt.Fprintln(flag.CommandLine.Output(), readFileError)
@@ -83,10 +82,15 @@ func main() {
 		codeOwnersLines = ApplyTeamMap(codeOwnersLines, teamMap)
 	}
 
-	formatted, formatError := FormatCST(codeOwnersLines, *formatPtr)
+	formatted, formatError := FormatCST(codeOwnersLines, "codeowners")
 	if formatError != nil {
 		fmt.Fprintln(flag.CommandLine.Output(), formatError)
 		os.Exit(1)
 	}
-	fmt.Print(formatted)
+	writeError := os.WriteFile(*codeOwnersPtr, []byte(formatted), 0644)
+	if writeError != nil {
+		fmt.Fprintln(flag.CommandLine.Output(), writeError)
+		os.Exit(1)
+	}
+	fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s'\n\n", *codeOwnersPtr)
 }
