@@ -24,7 +24,7 @@ func TestFormatCST(t *testing.T) {
 				LineNo:      3,
 				Raw:         "*   @owner",
 				RulePattern: "*",
-				Users: []User{
+				Owners: []Owner{
 					{Type: "user-or-team", Name: "@owner"},
 				},
 				InlineComment: "",
@@ -47,7 +47,7 @@ func TestFormatCST(t *testing.T) {
 				LineNo:      2,
 				Raw:         "*   @owner",
 				RulePattern: "*",
-				Users: []User{
+				Owners: []Owner{
 					{Type: "user-or-team", Name: "@owner"},
 				},
 				InlineComment: "",
@@ -67,7 +67,7 @@ func TestFormatCST(t *testing.T) {
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   },
   {
@@ -80,7 +80,7 @@ func TestFormatCST(t *testing.T) {
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": "   ",
-    "users": [
+    "owners": [
       {
         "type": "user-or-team",
         "name": "@owner"

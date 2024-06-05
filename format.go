@@ -5,11 +5,11 @@ import (
 	"fmt"
 )
 
-func formatUsers(users []User) string {
+func formatOwners(owners []Owner) string {
 	var output string
-	for i, user := range users {
-		output += user.Name
-		if i < len(users)-1 {
+	for i, owner := range owners {
+		output += owner.Name
+		if i < len(owners)-1 {
 			output += " "
 		} else {
 			output += ""
@@ -48,10 +48,10 @@ func FormatCSTAsCodeOwners(lines []CodeOwnersLine) (string, error) {
 		switch line.Type {
 		case "ignorable-comment":
 		case "rule":
-			output += line.RulePattern + line.Spaces + formatUsers(line.Users) + formatInlineComment(line.InlineComment) + "\n"
+			output += line.RulePattern + line.Spaces + formatOwners(line.Owners) + formatInlineComment(line.InlineComment) + "\n"
 		case "section-heading":
-			if line.Users != nil {
-				output += formatOptional(line.SectionOptional) + "[" + line.SectionName + "]" + formatMinApprovers(line.SectionMinApprovers) + line.Spaces + formatUsers(line.Users) + formatInlineComment(line.InlineComment) + "\n"
+			if line.Owners != nil {
+				output += formatOptional(line.SectionOptional) + "[" + line.SectionName + "]" + formatMinApprovers(line.SectionMinApprovers) + line.Spaces + formatOwners(line.Owners) + formatInlineComment(line.InlineComment) + "\n"
 			} else {
 				output += line.Raw + "\n"
 			}

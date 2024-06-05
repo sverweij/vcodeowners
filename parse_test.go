@@ -48,7 +48,7 @@ func TestParse(t *testing.T) {
 
 		assert.Equal(0, len(anomalies))
 	})
-	t.Run("section without users", func(t *testing.T) {
+	t.Run("section without owners", func(t *testing.T) {
 		content := `[section]`
 		codeOwnersLines, anomalies := Parse(content)
 
@@ -64,7 +64,7 @@ func TestParse(t *testing.T) {
 
 		assert.Equal(0, len(anomalies))
 	})
-	t.Run("section without users", func(t *testing.T) {
+	t.Run("section without owners", func(t *testing.T) {
 		content := `[section]`
 		codeOwnersLines, anomalies := Parse(content)
 
@@ -93,7 +93,7 @@ func TestParse(t *testing.T) {
 			SectionName:         "section",
 			SectionMinApprovers: 42,
 			Spaces:              "      ",
-			Users: []User{
+			Owners: []Owner{
 				{Name: "@user1", Type: "user-or-group"},
 				{Name: "@user2", Type: "user-or-group"},
 			},
@@ -146,7 +146,7 @@ func TestParse(t *testing.T) {
 			SectionOptional: false,
 			RulePattern:     "*",
 			Spaces:          "    ",
-			Users: []User{
+			Owners: []Owner{
 				{Name: "@user1", Type: "user-or-group"},
 				{Name: "@user2", Type: "user-or-group"},
 			},
@@ -166,7 +166,7 @@ func TestParse(t *testing.T) {
 			SectionOptional: false,
 			RulePattern:     "*",
 			Spaces:          "    ",
-			Users: []User{
+			Owners: []Owner{
 				{Name: "@user1", Type: "user-or-group"},
 				{Name: "@user2", Type: "user-or-group"},
 			},
@@ -176,7 +176,7 @@ func TestParse(t *testing.T) {
 		assert.Equal(0, len(anomalies))
 	})
 
-	t.Run("rule without users", func(t *testing.T) {
+	t.Run("rule without owners", func(t *testing.T) {
 		content := `*`
 		codeOwnersLines, anomalies := Parse(content)
 
@@ -191,7 +191,7 @@ func TestParse(t *testing.T) {
 		assert.Equal(Anomaly{LineNo: 1, Reason: "Unknown line type", Raw: "*"}, anomalies[0])
 	})
 
-	t.Run("rule with classified users", func(t *testing.T) {
+	t.Run("rule with classified owners", func(t *testing.T) {
 		content := `*    @user1 invalid invalid-too@ email@address.org`
 		codeOwnersLines, anomalies := Parse(content)
 
@@ -203,7 +203,7 @@ func TestParse(t *testing.T) {
 			SectionOptional: false,
 			RulePattern:     "*",
 			Spaces:          "    ",
-			Users: []User{
+			Owners: []Owner{
 				{Name: "@user1", Type: "user-or-group"},
 				{Name: "invalid", Type: "invalid"},
 				{Name: "invalid-too@", Type: "invalid"},
@@ -218,7 +218,7 @@ func TestParse(t *testing.T) {
 		}, anomalies)
 	})
 
-	t.Run("rule without users in the context of a section with", func(t *testing.T) {
+	t.Run("rule without owners in the context of a section with", func(t *testing.T) {
 		content := "^[section] @some_group\n*"
 		codeOwnersLines, anomalies := Parse(content)
 
@@ -231,7 +231,7 @@ func TestParse(t *testing.T) {
 			SectionName:         "section",
 			SectionMinApprovers: 0,
 			Spaces:              " ",
-			Users:               []User{{Name: "@some_group", Type: "user-or-group"}},
+			Owners:              []Owner{{Name: "@some_group", Type: "user-or-group"}},
 		}, codeOwnersLines[0])
 		assert.Equal(CodeOwnersLine{
 			Type:                "rule",
@@ -243,13 +243,13 @@ func TestParse(t *testing.T) {
 			RulePattern:         "*",
 			RuleSection:         "section",
 			Spaces:              "",
-			Users:               nil,
+			Owners:              nil,
 		}, codeOwnersLines[1])
 
 		assert.Equal(0, len(anomalies))
 	})
 
-	t.Run("rule without users in the context of a section with", func(t *testing.T) {
+	t.Run("rule without owners in the context of a section with", func(t *testing.T) {
 		content := "^[section] @some_group\n*"
 		codeOwnersLines, anomalies := Parse(content)
 
@@ -262,7 +262,7 @@ func TestParse(t *testing.T) {
 			SectionName:         "section",
 			SectionMinApprovers: 0,
 			Spaces:              " ",
-			Users:               []User{{Name: "@some_group", Type: "user-or-group"}},
+			Owners:              []Owner{{Name: "@some_group", Type: "user-or-group"}},
 		}, codeOwnersLines[0])
 		assert.Equal(CodeOwnersLine{
 			Type:                "rule",
@@ -274,13 +274,13 @@ func TestParse(t *testing.T) {
 			RulePattern:         "*",
 			RuleSection:         "section",
 			Spaces:              "",
-			Users:               nil,
+			Owners:              nil,
 		}, codeOwnersLines[1])
 
 		assert.Equal(0, len(anomalies))
 	})
 
-	t.Run("rule without users in the context of a section with valid and invalid users", func(t *testing.T) {
+	t.Run("rule without owners in the context of a section with valid and invalid owners", func(t *testing.T) {
 		content := "^[section] @some_group invalid_group @valid_group\n*"
 		codeOwnersLines, anomalies := Parse(content)
 
@@ -293,7 +293,7 @@ func TestParse(t *testing.T) {
 			SectionName:         "section",
 			SectionMinApprovers: 0,
 			Spaces:              " ",
-			Users: []User{
+			Owners: []Owner{
 				{Name: "@some_group", Type: "user-or-group"},
 				{Name: "invalid_group", Type: "invalid"},
 				{Name: "@valid_group", Type: "user-or-group"},
@@ -309,7 +309,7 @@ func TestParse(t *testing.T) {
 			RulePattern:         "*",
 			RuleSection:         "section",
 			Spaces:              "",
-			Users:               nil,
+			Owners:              nil,
 		}, codeOwnersLines[1])
 
 		assert.Equal(1, len(anomalies))
@@ -318,7 +318,7 @@ func TestParse(t *testing.T) {
 		}, anomalies)
 	})
 
-	t.Run("rule without users in the context of a section also without users", func(t *testing.T) {
+	t.Run("rule without owners in the context of a section also without owners", func(t *testing.T) {
 		content := "^[section]\n*"
 		codeOwnersLines, anomalies := Parse(content)
 
@@ -331,7 +331,7 @@ func TestParse(t *testing.T) {
 			SectionName:         "section",
 			SectionMinApprovers: 0,
 			Spaces:              "",
-			Users:               nil,
+			Owners:              nil,
 		}, codeOwnersLines[0])
 		assert.Equal(CodeOwnersLine{
 			Type:        "unknown",
@@ -346,7 +346,7 @@ func TestParse(t *testing.T) {
 		}, anomalies)
 	})
 
-	t.Run("rule without users in the context of a section without valid users", func(t *testing.T) {
+	t.Run("rule without owners in the context of a section without valid owners", func(t *testing.T) {
 		content := "^[section] invalid_user\n*"
 		codeOwnersLines, anomalies := Parse(content)
 
@@ -359,7 +359,7 @@ func TestParse(t *testing.T) {
 			SectionName:         "section",
 			SectionMinApprovers: 0,
 			Spaces:              " ",
-			Users:               []User{{Name: "invalid_user", Type: "invalid"}},
+			Owners:              []Owner{{Name: "invalid_user", Type: "invalid"}},
 		}, codeOwnersLines[0])
 		assert.Equal(CodeOwnersLine{
 			Type:        "unknown",
