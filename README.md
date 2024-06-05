@@ -224,6 +224,15 @@ vcodeowners \
   --codeOwners        .gitlab/CODEOWNERS
 ```
 
+### Can I just validate VIRTUAL-CODEOWNERS.txt & virtual-teams.yml without generating output?
+
+Sure thing. Use `--dryRun`:
+
+```
+vcodeowners --dryRun
+# Wrote '.github/CODEOWNERS' (dry run)
+```
+
 ### Why the `.txt` extension?
 
 It keeps editors and IDE's from messing up your formatting.

@@ -32,14 +32,13 @@ func main() {
 		                                  (default: false)
 		    --labelerLocation [file-name] The location of the labeler.yml file
 		                                  (default: ".github/labeler.yml")
-		    --dryRun                      Just validate inputs, don't generate
-		                                  outputs (default: false)
 	*/
 	versionPtr := flag.Bool("version", false, "output the version number")
 	virtualCodeOwnersPtr := flag.String("virtualCodeOwners", ".github/VIRTUAL-CODEOWNERS.txt", "A CODEOWNERS file with team names in them that are defined in a virtual teams file")
 	teamMapPtr := flag.String("virtualTeams", ".github/virtual-teams.json", "A JSON file listing teams and their members")
 	codeOwnersPtr := flag.String("codeOwners", ".github/CODEOWNERS", "The CODEOWNERS file to merge the virtual teams into")
 	validatePtr := flag.String("validate", "fail", "fail: exit on syntax errors, warn: print syntax errors & continue, skip: ignore syntax errors")
+	dryRunPtr := flag.Bool("dryRun", false, "Just validate inputs, don't generate outputs")
 
 	flag.Parse()
 
@@ -87,10 +86,16 @@ func main() {
 		fmt.Fprintln(flag.CommandLine.Output(), formatError)
 		os.Exit(1)
 	}
-	writeError := os.WriteFile(*codeOwnersPtr, []byte(formatted), 0644)
-	if writeError != nil {
-		fmt.Fprintln(flag.CommandLine.Output(), writeError)
-		os.Exit(1)
+
+	if !*dryRunPtr {
+		writeError := os.WriteFile(*codeOwnersPtr, []byte(formatted), 0644)
+		if writeError != nil {
+			fmt.Fprintln(flag.CommandLine.Output(), writeError)
+			os.Exit(1)
+		}
+		fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s'\n\n", *codeOwnersPtr)
+	} else {
+		fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s' (dry run)\n\n", *codeOwnersPtr)
 	}
-	fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s'\n\n", *codeOwnersPtr)
+
 }
