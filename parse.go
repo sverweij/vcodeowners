@@ -7,11 +7,12 @@ import (
 	"strings"
 )
 
-var ruleLineWithoutUsersPattern = regexp.MustCompile(`^(?<filesPattern>[^\s]+)(?<spaces>\s*)(?:#(?<comment>.*))?$`)
-var ruleLinePattern = regexp.MustCompile(`^(?<filesPattern>[^\s]+)(?<spaces>\s+)(?<userNames>[^#]+)(?:#(?<comment>.*))?$`)
-var sectionLineWithoutUsersPattern = regexp.MustCompile(`^(?<optionalIndicator>\^)?\[(?<name>[^\]]+)\](?:\[(?<minApprovers>[0-9]+)\])?(?:\s*)(?:#(?<comment>.*))?$`)
+var ruleLineWithoutOwnersPattern = regexp.MustCompile(`^(?<filesPattern>[^\s]+)(?<spaces>\s*)(?:#(?<comment>.*))?$`)
+var ruleLinePattern = regexp.MustCompile(`^(?<filesPattern>[^\s]+)(?<spaces>\s+)(?<ownerNames>[^#]+)(?:#(?<comment>.*))?$`)
+var sectionLineWithoutOwnersPattern = regexp.MustCompile(`^(?<optionalIndicator>\^)?\[(?<name>[^\]]+)\](?:\[(?<minApprovers>[0-9]+)\])?(?:\s*)(?:#(?<comment>.*))?$`)
 var sectionLinePattern = regexp.MustCompile(`^(?<optionalIndicator>\^)?\[(?<name>[^\]]+)\](?:\[(?<minApprovers>[0-9]+)\])?(?<spaces>\s+)(?<userNames>[^#]+)(?:#(?<comment>.*))?$`)
-var userSeparatorPattern = regexp.MustCompile(`\s+`)
+var ownerSeparatorPattern = regexp.MustCompile(`\s+`)
+var userOrGroupPattern = regexp.MustCompile("^@.+$")
 var emailPattern = regexp.MustCompile("^[^@]+@.+$")
 
 // CodeOwnersLine represents a line in a CODEOWNERS file
@@ -31,19 +32,19 @@ type CodeOwnersLine struct {
 	SectionMinApprovers int    `json:"sectionMinApprovers"`
 
 	// rule and section heading
-	Spaces        string `json:"spaces"`
-	Users         []User `json:"users"`
-	InlineComment string `json:"inlineComment"`
+	Spaces        string  `json:"spaces"`
+	Owners        []Owner `json:"owners"`
+	InlineComment string  `json:"inlineComment"`
 }
 
-// User represents a user in rule or section-heading
+// Owner represents an owner in rule or section-heading
 //
 // Types:
 //   - "user-or-group" (these start with an "@" symbol e.g. @john_doe or @the_a_team)
 //   - "e-mail" (e-mail addresses. We're not checking against the entire RFC 5322,
 //     just a simple check for presence of an "@" symbol)
 //   - "invalid" (anything else)
-type User struct {
+type Owner struct {
 	// user-or-group, e-mail, invalid
 	Type string `json:"type"`
 	Name string `json:"name"`
@@ -78,49 +79,49 @@ func getOptionalInt(fragment string) int {
 
 }
 
-func parseUser(user string) User {
-	if strings.HasPrefix(user, "@") {
-		return User{
+func ParseOwner(owner string) Owner {
+	if userOrGroupPattern.MatchString(owner) {
+		return Owner{
 			Type: "user-or-group",
-			Name: user,
+			Name: owner,
 		}
 	}
-	if emailPattern.MatchString(user) {
-		return User{
+	if emailPattern.MatchString(owner) {
+		return Owner{
 			Type: "e-mail",
-			Name: user,
+			Name: owner,
 		}
 	}
-	return User{
+	return Owner{
 		Type: "invalid",
-		Name: user,
+		Name: owner,
 	}
 }
 
-func parseUserString(usersString string) []User {
-	users := userSeparatorPattern.Split(usersString, -1)
-	var parsedUsers []User
-	for _, user := range users {
-		if user != "" {
-			parsedUsers = append(parsedUsers, parseUser(user))
+func parseOwnersString(ownersString string) []Owner {
+	owners := ownerSeparatorPattern.Split(ownersString, -1)
+	var parsedOwners []Owner
+	for _, owner := range owners {
+		if owner != "" {
+			parsedOwners = append(parsedOwners, ParseOwner(owner))
 		}
 	}
-	return parsedUsers
+	return parsedOwners
 }
 
 func parseSectionHeadLine(line string, lineNo int, state parseState) (CodeOwnersLine, parseState) {
-	noUserSectionPatternMatches := sectionLineWithoutUsersPattern.FindStringSubmatch(line)
+	ownerlessSectionPatternMatches := sectionLineWithoutOwnersPattern.FindStringSubmatch(line)
 
-	if noUserSectionPatternMatches != nil {
+	if ownerlessSectionPatternMatches != nil {
 		return CodeOwnersLine{
 			Type:   "section-heading",
 			LineNo: lineNo,
 			Raw:    line,
 
-			SectionOptional:     noUserSectionPatternMatches[1] == "^",
-			SectionName:         noUserSectionPatternMatches[2],
-			SectionMinApprovers: getOptionalInt(noUserSectionPatternMatches[3]),
-		}, parseState{currentSection: noUserSectionPatternMatches[2], currentSectionHasValidUsers: false}
+			SectionOptional:     ownerlessSectionPatternMatches[1] == "^",
+			SectionName:         ownerlessSectionPatternMatches[2],
+			SectionMinApprovers: getOptionalInt(ownerlessSectionPatternMatches[3]),
+		}, parseState{currentSection: ownerlessSectionPatternMatches[2], currentSectionHasValidUsers: false}
 	}
 
 	sectionHeadPatternMatches := sectionLinePattern.FindStringSubmatch(line)
@@ -132,11 +133,11 @@ func parseSectionHeadLine(line string, lineNo int, state parseState) (CodeOwners
 		}, state
 	}
 
-	users := parseUserString(sectionHeadPatternMatches[5])
+	owners := parseOwnersString(sectionHeadPatternMatches[5])
 	currentSectionHasValidUsers := false
 
-	for _, user := range users {
-		if user.Type != "invalid" {
+	for _, owner := range owners {
+		if owner.Type != "invalid" {
 			currentSectionHasValidUsers = true
 			break
 		}
@@ -150,7 +151,7 @@ func parseSectionHeadLine(line string, lineNo int, state parseState) (CodeOwners
 			SectionName:         sectionHeadPatternMatches[2],
 			SectionMinApprovers: getOptionalInt(sectionHeadPatternMatches[3]),
 			Spaces:              sectionHeadPatternMatches[4],
-			Users:               users,
+			Owners:              owners,
 			InlineComment:       sectionHeadPatternMatches[6],
 		}, parseState{
 			currentSection:              sectionHeadPatternMatches[2],
@@ -160,7 +161,7 @@ func parseSectionHeadLine(line string, lineNo int, state parseState) (CodeOwners
 
 func parseRuleLine(line string, lineNo int, state parseState) CodeOwnersLine {
 
-	ruleLineWithoutUsersPatternMatches := ruleLineWithoutUsersPattern.FindStringSubmatch(line)
+	ruleLineWithoutUsersPatternMatches := ruleLineWithoutOwnersPattern.FindStringSubmatch(line)
 
 	if ruleLineWithoutUsersPatternMatches != nil && state.currentSectionHasValidUsers {
 		return CodeOwnersLine{
@@ -191,7 +192,7 @@ func parseRuleLine(line string, lineNo int, state parseState) CodeOwnersLine {
 		RulePattern:   ruleLinePatternMatches[1],
 		RuleSection:   state.currentSection,
 		Spaces:        ruleLinePatternMatches[2],
-		Users:         parseUserString(ruleLinePatternMatches[3]),
+		Owners:        parseOwnersString(ruleLinePatternMatches[3]),
 		InlineComment: ruleLinePatternMatches[4],
 	}
 
@@ -253,12 +254,12 @@ func Parse(content string) ([]CodeOwnersLine, []Anomaly) {
 			)
 		}
 		if line.Type == "rule" || line.Type == "section-heading" {
-			for _, user := range line.Users {
-				if user.Type == "invalid" {
+			for _, owner := range line.Owners {
+				if owner.Type == "invalid" {
 					anomalies = append(anomalies,
 						Anomaly{
 							LineNo: line.LineNo,
-							Reason: fmt.Sprintf("Invalid user '%s'", user.Name),
+							Reason: fmt.Sprintf("Invalid user '%s'", owner.Name),
 							Raw:    line.Raw,
 						},
 					)

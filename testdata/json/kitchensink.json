@@ -9,7 +9,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   },
   {
@@ -22,7 +22,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   },
   {
@@ -35,7 +35,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   },
   {
@@ -48,7 +48,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": " ",
-    "users": [
+    "owners": [
       {
         "type": "user-or-group",
         "name": "@vco-admins"
@@ -74,7 +74,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   },
   {
@@ -87,7 +87,7 @@
     "sectionName": "admin",
     "sectionMinApprovers": 2,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   },
   {
@@ -100,7 +100,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": " ",
-    "users": [
+    "owners": [
       {
         "type": "user-or-group",
         "name": "@vco-admins"
@@ -118,7 +118,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   },
   {
@@ -131,7 +131,7 @@
     "sectionName": "maintainer",
     "sectionMinApprovers": 3,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   },
   {
@@ -144,7 +144,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": " ",
-    "users": [
+    "owners": [
       {
         "type": "user-or-group",
         "name": "@vco-maintainers"
@@ -166,7 +166,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   },
   {
@@ -179,7 +179,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": " ",
-    "users": [
+    "owners": [
       {
         "type": "user-or-group",
         "name": "@vco-contributors"
@@ -201,7 +201,7 @@
     "sectionName": "",
     "sectionMinApprovers": 0,
     "spaces": "",
-    "users": null,
+    "owners": null,
     "inlineComment": ""
   }
 ]
