@@ -88,7 +88,6 @@ Update it whenever you have new team members and run `vcodeowners`
 to keep CODEOWNERS current.
 
 ```json
-# json-language-server: $schema=https://raw.githubusercontent.com/sverweij/virtual-code-owners/main/src/virtual-teams.schema.json
 {
   "ch/after-sales": [
     "john-doe-ch",
