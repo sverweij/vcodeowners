@@ -42,8 +42,12 @@ func formatMinApprovers(sectionMinApprovers int) string {
 
 // FormatCSTAsCodeOwners takes CST (a slice of CodeOwnersLines) and returns them
 // in the CODEOWNERS format.
-func FormatCSTAsCodeOwners(lines []CodeOwnersLine) (string, error) {
+func FormatCSTAsCodeOwners(lines []CodeOwnersLine, headerComment string) (string, error) {
 	var output string
+	if headerComment != "" {
+		output = headerComment
+	}
+
 	for _, line := range lines {
 		switch line.Type {
 		case "ignorable-comment":
@@ -69,12 +73,16 @@ func FormatCSTAsJSON(lines []CodeOwnersLine) (string, error) {
 	return string(jsonBytes), error
 }
 
+func FormatCSTAsLabelerYML(lines []CodeOwnersLine, headerComment string) (string, error) {
+	return "TODO", nil
+}
+
 func FormatCST(lines []CodeOwnersLine, format string) (string, error) {
 	switch format {
 	case "json":
 		return FormatCSTAsJSON(lines)
 	}
-	return FormatCSTAsCodeOwners(lines)
+	return FormatCSTAsCodeOwners(lines, "")
 }
 
 // FormatAnomaliesAsText takes a slice of Anomalies and returns them in a human

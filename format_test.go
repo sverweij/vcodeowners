@@ -135,12 +135,20 @@ func TestFormatCodeOwners(t *testing.T) {
 				assert.Nil(errorExpected)
 
 				parsed, _ := Parse(string(content))
-				found, _ := FormatCSTAsCodeOwners(parsed)
+				found, _ := FormatCSTAsCodeOwners(parsed, "")
 
 				assert.Equal(string(expected), found)
 			})
 		}
 	}
+	t.Run("adds a comment header when passed a non-empty string", func(t *testing.T) {
+		content := `* @owner`
+		parsed, _ := Parse(content)
+		expected := `# The man in black fled across the desert, and the gunslinger followed.`
+		found, _ := FormatCSTAsCodeOwners(parsed, "# The man in black fled across the desert, and the gunslinger followed.")
+
+		assert.Contains(found, expected)
+	})
 }
 
 func TestFormatAnomalies(t *testing.T) {

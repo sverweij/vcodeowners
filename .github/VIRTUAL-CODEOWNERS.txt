@@ -2,10 +2,9 @@
 #!   vcodeowners
 #!
 # catch-all to ensure there at least _is_ a code owner
-*              @maintainers
+*               @maintainers
 
-# [admin-only]  
+# [admin-only]
 .github/        @admins
 go.mod          @admins
 go.sum          @admins
-

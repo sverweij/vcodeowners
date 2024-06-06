@@ -22,3 +22,6 @@ coverage.html
 # Go workspace file
 go.work
 go.work.sum
+
+# other things
+TODO.md

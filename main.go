@@ -1,12 +1,16 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
 	"os"
 )
 
 const VERSION = "0.0.1"
+
+//go:embed headers/codeowners.txt
+var codeOwnersHeaderComment []byte
 
 func validateValid(validate string) bool {
 	var validValidateOptions = map[string]bool{
@@ -21,24 +25,18 @@ func main() {
 
 	flag.Usage = func() {
 		fmt.Fprint(flag.CommandLine.Output(), "Usage: vcodeowners [options]\n\n")
-		fmt.Fprint(flag.CommandLine.Output(), "Merges a VIRTUAL-CODEOWNERS.txt and a virtual-teams.yml into CODEOWNERS\n\n")
+		fmt.Fprint(flag.CommandLine.Output(), "Merges a VIRTUAL-CODEOWNERS.txt and a virtual-teams.json into CODEOWNERS\n\n")
 		flag.PrintDefaults()
 	}
 
-	/*
-			Options from virtual-code-owners not yet implemented:
-		    --emitLabeler                 Whether or not to emit a labeler.yml to be
-		                                  used with actions/labeler
-		                                  (default: false)
-		    --labelerLocation [file-name] The location of the labeler.yml file
-		                                  (default: ".github/labeler.yml")
-	*/
 	versionPtr := flag.Bool("version", false, "output the version number")
 	virtualCodeOwnersPtr := flag.String("virtualCodeOwners", ".github/VIRTUAL-CODEOWNERS.txt", "A CODEOWNERS file with team names in them that are defined in a virtual teams file")
 	teamMapPtr := flag.String("virtualTeams", ".github/virtual-teams.json", "A JSON file listing teams and their members")
 	codeOwnersPtr := flag.String("codeOwners", ".github/CODEOWNERS", "The CODEOWNERS file to merge the virtual teams into")
 	validatePtr := flag.String("validate", "fail", "fail: exit on syntax errors, warn: print syntax errors & continue, skip: ignore syntax errors")
 	dryRunPtr := flag.Bool("dryRun", false, "Just validate inputs, don't generate outputs")
+	emitLabelerPtr := flag.Bool("emitLabeler", false, "Whether or not to emit a labeler.yml to be used with actions/labeler")
+	labelerLocationPtr := flag.String("labelerLocation", ".github/labeler.yml", "The location of the labeler.yml file")
 
 	flag.Parse()
 
@@ -67,21 +65,24 @@ func main() {
 		}
 	}
 
+	teamMap := map[string][]string{}
+
 	if *teamMapPtr != "" {
 		teamMapBytes, teamMapReadError := os.ReadFile(*teamMapPtr)
 		if teamMapReadError != nil {
 			fmt.Fprintln(flag.CommandLine.Output(), teamMapReadError)
 			os.Exit(1)
 		}
-		teamMap, teamMapParseError := ParseTeamMap(string(teamMapBytes))
+		var teamMapParseError error
+		teamMap, teamMapParseError = ParseTeamMap(string(teamMapBytes))
 		if teamMapParseError != nil {
 			fmt.Fprintln(flag.CommandLine.Output(), teamMapParseError)
 			os.Exit(1)
 		}
-		codeOwnersLines = ApplyTeamMap(codeOwnersLines, teamMap)
 	}
+	transformedCodeOwnersLines := ApplyTeamMap(codeOwnersLines, teamMap)
 
-	formatted, formatError := FormatCST(codeOwnersLines, "codeowners")
+	formatted, formatError := FormatCSTAsCodeOwners(transformedCodeOwnersLines, string(codeOwnersHeaderComment))
 	if formatError != nil {
 		fmt.Fprintln(flag.CommandLine.Output(), formatError)
 		os.Exit(1)
@@ -94,6 +95,18 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s'\n\n", *codeOwnersPtr)
+		if *emitLabelerPtr {
+			labelerFormatted, labelerFormatError := FormatCSTAsLabelerYML(codeOwnersLines, "")
+			if labelerFormatError != nil {
+				fmt.Fprintln(flag.CommandLine.Output(), labelerFormatError)
+			}
+			labelerWriteError := os.WriteFile(*labelerLocationPtr, []byte(labelerFormatted), 0644)
+			if labelerWriteError != nil {
+				fmt.Fprintln(flag.CommandLine.Output(), labelerWriteError)
+				os.Exit(1)
+			}
+
+		}
 	} else {
 		fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s' (dry run)\n\n", *codeOwnersPtr)
 	}
