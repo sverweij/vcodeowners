@@ -1,0 +1,10 @@
+admins:
+  - changed-files:
+    - any-glob-to-any-file: .github/**
+    - any-glob-to-any-file: go.mod
+    - any-glob-to-any-file: go.sum
+
+maintainers:
+  - changed-files:
+    - any-glob-to-any-file: "**"
+

@@ -1,0 +1,152 @@
+[
+  {
+    "type": "ignorable-comment",
+    "lineNo": 1,
+    "raw": "#! this is not the CODEOWNERS file - to get that one run",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "owners": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "ignorable-comment",
+    "lineNo": 2,
+    "raw": "#!   vcodeowners",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "owners": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "ignorable-comment",
+    "lineNo": 3,
+    "raw": "#!",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "owners": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "comment",
+    "lineNo": 4,
+    "raw": "# catch-all to ensure there at least _is_ a code owner",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "owners": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "rule",
+    "lineNo": 5,
+    "raw": "*               @maintainers",
+    "rulePattern": "*",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "               ",
+    "owners": [
+      {
+        "type": "user-or-group",
+        "name": "@maintainers"
+      }
+    ],
+    "inlineComment": ""
+  },
+  {
+    "type": "empty",
+    "lineNo": 6,
+    "raw": "",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "owners": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "comment",
+    "lineNo": 7,
+    "raw": "# [admin-only]",
+    "rulePattern": "",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "",
+    "owners": null,
+    "inlineComment": ""
+  },
+  {
+    "type": "rule",
+    "lineNo": 8,
+    "raw": ".github/        @admins",
+    "rulePattern": ".github/",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "        ",
+    "owners": [
+      {
+        "type": "user-or-group",
+        "name": "@admins"
+      }
+    ],
+    "inlineComment": ""
+  },
+  {
+    "type": "rule",
+    "lineNo": 9,
+    "raw": "go.mod          @admins",
+    "rulePattern": "go.mod",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "          ",
+    "owners": [
+      {
+        "type": "user-or-group",
+        "name": "@admins"
+      }
+    ],
+    "inlineComment": ""
+  },
+  {
+    "type": "rule",
+    "lineNo": 10,
+    "raw": "go.sum          @admins",
+    "rulePattern": "go.sum",
+    "ruleSection": "",
+    "sectionOptional": false,
+    "sectionName": "",
+    "sectionMinApprovers": 0,
+    "spaces": "          ",
+    "owners": [
+      {
+        "type": "user-or-group",
+        "name": "@admins"
+      }
+    ],
+    "inlineComment": ""
+  }
+]

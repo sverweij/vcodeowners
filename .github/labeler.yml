@@ -1,0 +1,20 @@
+#
+# DO NOT EDIT - this file is generated and your edits will be overwritten
+#
+# To make changes:
+#
+#   - edit .github/VIRTUAL-CODEOWNERS.txt
+#   - and/ or add teams (& members) to .github/virtual-teams.json
+#   - run 'vcodeowners --emitLabeler'
+#
+
+admins:
+  - changed-files:
+    - any-glob-to-any-file: .github/**
+    - any-glob-to-any-file: go.mod
+    - any-glob-to-any-file: go.sum
+
+maintainers:
+  - changed-files:
+    - any-glob-to-any-file: "**"
+

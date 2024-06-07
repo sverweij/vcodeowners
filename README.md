@@ -24,12 +24,12 @@ This generates your `CODEOWNERS` file (_patterns_ x _users_) from
 - a `VIRTUAL-CODEOWNERS.txt` (_patterns_ x _teams_)
 - a `virtual-teams.json` (_teams_ x _users_)
 
-... which makes it easier to keep `CODEOWNERS` in sync on multi-team mono repos.
-When those teams are not defined on GitHub level.
+... which makes it easier to keep `CODEOWNERS` in sync on multi-team mono repos
+when you don't have (enough) 'real' GitHub or GitLab teams.
 
 ## Usage
 
-- Rename your `.github/CODEOWNERS` to `.github/VIRTUAL-CODEOWNERS.txt` and put team names in them.
+- Rename `.github/CODEOWNERS` to `.github/VIRTUAL-CODEOWNERS.txt` and put team names in them.
 - Define teams that don't (yet) exist on GitHub level in `.github/virtual-teams.json`
 - Run this:
 
@@ -199,6 +199,28 @@ Yes.
 
 Just make sure there's no name clashes between the username and a (virtual)
 team name and _vcodeowners_ will leave the real name alone.
+
+### Can I automatically label PR's for virtual teams?
+
+Yep.
+
+Use [actions/labeler](https://github.com/actions/labeler) and tickle
+`vcodeowners` to generate the labeler config file:
+
+```sh
+vcodeowners --emitLabeler
+# Wrote .github/CODEOWNERS AND .github/labeler.json
+```
+
+If you have an alternate file location for the `labeler.yml` you can specify that
+with vcodeowners's `--labelerLocation` parameter.
+
+> [!NOTE]
+> actions/labeler changed the labeler.yml format from v4 to v5.
+>
+> vcodeowners generates labeler.yml v5 format exclusively, if you're still
+> on v4 you will want to upgrade anyway. see [actions/labeler#v5](https://github.com/actions/labeler/blob/8558fd74291d67161a8a78ce36a881fa63b766a9/README.md)
+> for details.
 
 
 ### What validations does vcodeowners perform?

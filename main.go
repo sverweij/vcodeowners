@@ -12,6 +12,9 @@ const VERSION = "0.0.1"
 //go:embed headers/codeowners.txt
 var codeOwnersHeaderComment []byte
 
+//go:embed headers/labeler.txt
+var labelerHeaderComment []byte
+
 func validateValid(validate string) bool {
 	var validValidateOptions = map[string]bool{
 		"fail": true,
@@ -37,6 +40,7 @@ func main() {
 	dryRunPtr := flag.Bool("dryRun", false, "Just validate inputs, don't generate outputs")
 	emitLabelerPtr := flag.Bool("emitLabeler", false, "Whether or not to emit a labeler.yml to be used with actions/labeler")
 	labelerLocationPtr := flag.String("labelerLocation", ".github/labeler.yml", "The location of the labeler.yml file")
+	jsonPtr := flag.Bool("json", false, "Output JSON to stdout (in addition to writing CODEOWNERS)")
 
 	flag.Parse()
 
@@ -96,7 +100,7 @@ func main() {
 		}
 		fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s'\n\n", *codeOwnersPtr)
 		if *emitLabelerPtr {
-			labelerFormatted, labelerFormatError := FormatCSTAsLabelerYML(codeOwnersLines, "")
+			labelerFormatted, labelerFormatError := FormatCSTAsLabelerYML(codeOwnersLines, teamMap, string(labelerHeaderComment))
 			if labelerFormatError != nil {
 				fmt.Fprintln(flag.CommandLine.Output(), labelerFormatError)
 			}
@@ -109,6 +113,15 @@ func main() {
 		}
 	} else {
 		fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s' (dry run)\n\n", *codeOwnersPtr)
+	}
+
+	if *jsonPtr {
+		jsonFormatted, jsonFormatError := FormatCSTAsJSON(transformedCodeOwnersLines)
+		if jsonFormatError != nil {
+			fmt.Fprintln(flag.CommandLine.Output(), jsonFormatError)
+			os.Exit(1)
+		}
+		fmt.Println(jsonFormatted)
 	}
 
 }

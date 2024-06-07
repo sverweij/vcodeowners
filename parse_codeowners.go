@@ -57,13 +57,13 @@ type Anomaly struct {
 	Raw    string `json:"raw"`
 }
 
+func (anomaly Anomaly) String() string {
+	return fmt.Sprintf("Line %4d, %s: \"%s\"", anomaly.LineNo, anomaly.Reason, anomaly.Raw)
+}
+
 type parseState struct {
 	currentSection              string
 	currentSectionHasValidUsers bool
-}
-
-func (anomaly Anomaly) String() string {
-	return fmt.Sprintf("Line %4d, %s: \"%s\"", anomaly.LineNo, anomaly.Reason, anomaly.Raw)
 }
 
 func getOptionalInt(fragment string) int {
