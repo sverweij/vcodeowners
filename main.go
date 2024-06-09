@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -24,104 +25,127 @@ func validateValid(validate string) bool {
 	return validValidateOptions[validate]
 }
 
-func main() {
+type cliOptionsType struct {
+	version           *bool
+	virtualCodeOwners *string
+	teamMap           *string
+	codeOwners        *string
+	validate          *string
+	dryRun            *bool
+	emitLabeler       *bool
+	labelerLocation   *string
+	json              *bool
+}
 
+const EXIT_CODE_ERROR = 1
+
+func getOptions(stderr io.Writer) cliOptionsType {
 	flag.Usage = func() {
-		fmt.Fprint(flag.CommandLine.Output(), "Usage: vcodeowners [options]\n\n")
-		fmt.Fprint(flag.CommandLine.Output(), "Merges a VIRTUAL-CODEOWNERS.txt and a virtual-teams.json into CODEOWNERS\n\n")
+		fmt.Fprint(stderr, "Usage: vcodeowners [options]\n\n")
+		fmt.Fprint(stderr, "Merges a VIRTUAL-CODEOWNERS.txt and a virtual-teams.json into CODEOWNERS\n\n")
 		flag.PrintDefaults()
 	}
 
-	versionPtr := flag.Bool("version", false, "output the version number")
-	virtualCodeOwnersPtr := flag.String("virtualCodeOwners", ".github/VIRTUAL-CODEOWNERS.txt", "A CODEOWNERS file with team names in them that are defined in a virtual teams file")
-	teamMapPtr := flag.String("virtualTeams", ".github/virtual-teams.json", "A JSON file listing teams and their members")
-	codeOwnersPtr := flag.String("codeOwners", ".github/CODEOWNERS", "The CODEOWNERS file to merge the virtual teams into")
-	validatePtr := flag.String("validate", "fail", "fail: exit on syntax errors, warn: print syntax errors & continue, skip: ignore syntax errors")
-	dryRunPtr := flag.Bool("dryRun", false, "Just validate inputs, don't generate outputs")
-	emitLabelerPtr := flag.Bool("emitLabeler", false, "Whether or not to emit a labeler.yml to be used with actions/labeler")
-	labelerLocationPtr := flag.String("labelerLocation", ".github/labeler.yml", "The location of the labeler.yml file")
-	jsonPtr := flag.Bool("json", false, "Output JSON to stdout (in addition to writing CODEOWNERS)")
+	cliOptions := cliOptionsType{
+		version:           flag.Bool("version", false, "output the version number"),
+		virtualCodeOwners: flag.String("virtualCodeOwners", ".github/VIRTUAL-CODEOWNERS.txt", "A CODEOWNERS file with team names in them that are defined in a virtual teams file"),
+		teamMap:           flag.String("virtualTeams", ".github/virtual-teams.json", "A JSON file listing teams and their members"),
+		codeOwners:        flag.String("codeOwners", ".github/CODEOWNERS", "The CODEOWNERS file to merge the virtual teams into"),
+		validate:          flag.String("validate", "fail", "fail: exit on syntax errors, warn: print syntax errors & continue, skip: ignore syntax errors"),
+		dryRun:            flag.Bool("dryRun", false, "Just validate inputs, don't generate outputs"),
+		emitLabeler:       flag.Bool("emitLabeler", false, "Whether or not to emit a labeler.yml to be used with actions/labeler"),
+		labelerLocation:   flag.String("labelerLocation", ".github/labeler.yml", "The location of the labeler.yml file"),
+		json:              flag.Bool("json", false, "Output JSON to stdout (in addition to writing CODEOWNERS)"),
+	}
 
 	flag.Parse()
+	return cliOptions
+}
 
-	if *versionPtr {
-		fmt.Println(VERSION)
-		os.Exit(0)
+func cli(options cliOptionsType) (string, error) {
+	returnMessage := ""
+
+	if *options.version {
+		return VERSION, nil
 	}
-	if !validateValid(*validatePtr) {
-		fmt.Fprintln(flag.CommandLine.Output(), "Invalid validate option. Valid options: fail, warn, skip")
-		os.Exit(1)
+	if !validateValid(*options.validate) {
+		return "",
+			fmt.Errorf("invalid validate option '%s'; valid options: fail, warn, skip", *options.validate)
 	}
 
-	bytes, readFileError := os.ReadFile(*virtualCodeOwnersPtr)
+	bytes, readFileError := os.ReadFile(*options.virtualCodeOwners)
 
 	if readFileError != nil {
-		fmt.Fprintln(flag.CommandLine.Output(), readFileError)
-		os.Exit(1)
+		return "", readFileError
 	}
 
 	codeOwnersLines, syntaxErrors := Parse(string(bytes))
 
-	if len(syntaxErrors) > 0 && (*validatePtr != "skip") {
-		fmt.Fprintln(flag.CommandLine.Output(), FormatAnomaliesAsText(syntaxErrors))
-		if *validatePtr == "fail" {
-			os.Exit(1)
+	if len(syntaxErrors) > 0 && (*options.validate != "skip") {
+		if *options.validate == "fail" {
+			return "", fmt.Errorf("%s", FormatAnomaliesAsText(syntaxErrors))
 		}
+		returnMessage = returnMessage + FormatAnomaliesAsText(syntaxErrors)
 	}
 
 	teamMap := map[string][]string{}
 
-	if *teamMapPtr != "" {
-		teamMapBytes, teamMapReadError := os.ReadFile(*teamMapPtr)
+	if *options.teamMap != "" {
+		teamMapBytes, teamMapReadError := os.ReadFile(*options.teamMap)
 		if teamMapReadError != nil {
-			fmt.Fprintln(flag.CommandLine.Output(), teamMapReadError)
-			os.Exit(1)
+			return "", teamMapReadError
 		}
 		var teamMapParseError error
 		teamMap, teamMapParseError = ParseTeamMap(string(teamMapBytes))
 		if teamMapParseError != nil {
-			fmt.Fprintln(flag.CommandLine.Output(), teamMapParseError)
-			os.Exit(1)
+			return "", teamMapParseError
 		}
 	}
 	transformedCodeOwnersLines := ApplyTeamMap(codeOwnersLines, teamMap)
 
 	formatted, formatError := FormatCSTAsCodeOwners(transformedCodeOwnersLines, string(codeOwnersHeaderComment))
 	if formatError != nil {
-		fmt.Fprintln(flag.CommandLine.Output(), formatError)
-		os.Exit(1)
+		return "", formatError
 	}
 
-	if !*dryRunPtr {
-		writeError := os.WriteFile(*codeOwnersPtr, []byte(formatted), 0644)
+	if !*options.dryRun {
+		writeError := os.WriteFile(*options.codeOwners, []byte(formatted), 0644)
 		if writeError != nil {
-			fmt.Fprintln(flag.CommandLine.Output(), writeError)
-			os.Exit(1)
+			return "", writeError
 		}
-		fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s'\n\n", *codeOwnersPtr)
-		if *emitLabelerPtr {
+		returnMessage = returnMessage + fmt.Sprintf("\nWrote '%s'\n", *options.codeOwners)
+		if *options.emitLabeler {
 			labelerFormatted, labelerFormatError := FormatCSTAsLabelerYML(codeOwnersLines, teamMap, string(labelerHeaderComment))
 			if labelerFormatError != nil {
-				fmt.Fprintln(flag.CommandLine.Output(), labelerFormatError)
+				return "", labelerFormatError
 			}
-			labelerWriteError := os.WriteFile(*labelerLocationPtr, []byte(labelerFormatted), 0644)
+			labelerWriteError := os.WriteFile(*options.labelerLocation, []byte(labelerFormatted), 0644)
 			if labelerWriteError != nil {
-				fmt.Fprintln(flag.CommandLine.Output(), labelerWriteError)
-				os.Exit(1)
+				return "", labelerWriteError
 			}
-
 		}
 	} else {
-		fmt.Fprintf(flag.CommandLine.Output(), "\nWrote '%s' (dry run)\n\n", *codeOwnersPtr)
+		returnMessage = returnMessage + fmt.Sprintf("\nWrote '%s' (dry run)\n\n", *options.codeOwners)
 	}
 
-	if *jsonPtr {
+	if *options.json {
 		jsonFormatted, jsonFormatError := FormatCSTAsJSON(transformedCodeOwnersLines)
 		if jsonFormatError != nil {
-			fmt.Fprintln(flag.CommandLine.Output(), jsonFormatError)
-			os.Exit(1)
+			return "", jsonFormatError
 		}
 		fmt.Println(jsonFormatted)
 	}
+	return returnMessage, nil
+}
 
+func main() {
+	cliOptions := getOptions(flag.CommandLine.Output())
+	message, error := cli(cliOptions)
+
+	if error != nil {
+		fmt.Fprintln(flag.CommandLine.Output(), error.Error())
+		os.Exit(EXIT_CODE_ERROR)
+	} else {
+		fmt.Fprintln(flag.CommandLine.Output(), message)
+	}
 }
