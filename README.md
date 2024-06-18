@@ -13,11 +13,7 @@
 > 
 > Because this is a re-implementation and I've learned a bit more about the
 > functionality there _are_ differences between the two, most notably that
-> this one reads the virtual teams from json only and there isn't yet support
-> for the labeler.yml file.
-> 
-> Also: documentation might still be a bit out of sync with how the features work
-> here. This might become better over time.
+> this one reads the virtual teams from json only.
 
 This generates your `CODEOWNERS` file (_patterns_ x _users_) from
 
