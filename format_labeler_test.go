@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,7 +18,6 @@ func TestFormatLabeler(t *testing.T) {
 	testInputs, _ := os.ReadDir(LABELER_TEST_DIR)
 	for _, thing := range testInputs {
 		if strings.HasSuffix(thing.Name(), "-cst.json") {
-			fmt.Println("Running test for", thing.Name())
 			root := strings.Replace(thing.Name(), "-cst.json", "", -1)
 			t.Run(root, func(t *testing.T) {
 				// codeowners CST
