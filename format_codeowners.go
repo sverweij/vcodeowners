@@ -10,8 +10,6 @@ func formatOwners(owners []Owner) string {
 		output += owner.Name
 		if i < len(owners)-1 {
 			output += " "
-		} else {
-			output += ""
 		}
 
 	}
