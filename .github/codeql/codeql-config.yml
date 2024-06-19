@@ -1,0 +1,7 @@
+name: "CodeQL config"
+
+paths:
+  - internal/things
+  - *.go
+queries:
+  - uses: security-and-quality
