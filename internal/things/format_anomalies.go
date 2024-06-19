@@ -1,4 +1,4 @@
-package main
+package things
 
 // FormatAnomaliesAsText takes a slice of Anomalies and returns them in a human
 // readable format.
