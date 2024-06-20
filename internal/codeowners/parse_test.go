@@ -1,4 +1,4 @@
-package things
+package codeowners
 
 import (
 	"testing"
@@ -13,7 +13,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:   "empty",
 			LineNo: 1,
 			Raw:    content,
@@ -26,7 +26,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:   "comment",
 			LineNo: 1,
 			Raw:    content,
@@ -40,7 +40,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:   "ignorable-comment",
 			LineNo: 1,
 			Raw:    "#! This is an ignorable comment",
@@ -53,7 +53,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "section-heading",
 			LineNo:              1,
 			Raw:                 content,
@@ -69,7 +69,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "section-heading",
 			LineNo:              1,
 			Raw:                 content,
@@ -85,7 +85,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "section-heading",
 			LineNo:              1,
 			Raw:                 content,
@@ -107,7 +107,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:   "unknown",
 			LineNo: 1,
 			Raw:    content,
@@ -122,7 +122,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "section-heading",
 			LineNo:              1,
 			Raw:                 content,
@@ -139,7 +139,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:            "rule",
 			LineNo:          1,
 			Raw:             content,
@@ -159,7 +159,7 @@ func TestParse(t *testing.T) {
 		content := `*    @user1 @user2 # This is a comment`
 		codeOwnersLines, anomalies := Parse(content)
 
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:            "rule",
 			LineNo:          1,
 			Raw:             content,
@@ -181,7 +181,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:   "unknown",
 			LineNo: 1,
 			Raw:    content,
@@ -196,7 +196,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(1, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:            "rule",
 			LineNo:          1,
 			Raw:             content,
@@ -212,7 +212,7 @@ func TestParse(t *testing.T) {
 			InlineComment: "",
 		}, codeOwnersLines[0])
 
-		assert.Equal([]Anomaly{
+		assert.Equal(Anomalies{
 			{LineNo: 1, Reason: "Invalid user 'invalid'", Raw: "*    @user1 invalid invalid-too@ email@address.org"},
 			{LineNo: 1, Reason: "Invalid user 'invalid-too@'", Raw: "*    @user1 invalid invalid-too@ email@address.org"},
 		}, anomalies)
@@ -223,7 +223,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(2, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "section-heading",
 			LineNo:              1,
 			Raw:                 "^[section] @some_group",
@@ -233,7 +233,7 @@ func TestParse(t *testing.T) {
 			Spaces:              " ",
 			Owners:              []Owner{{Name: "@some_group", Type: "user-or-group"}},
 		}, codeOwnersLines[0])
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "rule",
 			LineNo:              2,
 			Raw:                 "*",
@@ -254,7 +254,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(2, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "section-heading",
 			LineNo:              1,
 			Raw:                 "^[section] @some_group",
@@ -264,7 +264,7 @@ func TestParse(t *testing.T) {
 			Spaces:              " ",
 			Owners:              []Owner{{Name: "@some_group", Type: "user-or-group"}},
 		}, codeOwnersLines[0])
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "rule",
 			LineNo:              2,
 			Raw:                 "*",
@@ -285,7 +285,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(2, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "section-heading",
 			LineNo:              1,
 			Raw:                 "^[section] @some_group invalid_group @valid_group",
@@ -299,7 +299,7 @@ func TestParse(t *testing.T) {
 				{Name: "@valid_group", Type: "user-or-group"},
 			},
 		}, codeOwnersLines[0])
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "rule",
 			LineNo:              2,
 			Raw:                 "*",
@@ -313,7 +313,7 @@ func TestParse(t *testing.T) {
 		}, codeOwnersLines[1])
 
 		assert.Equal(1, len(anomalies))
-		assert.Equal([]Anomaly{
+		assert.Equal(Anomalies{
 			{LineNo: 1, Reason: "Invalid user 'invalid_group'", Raw: "^[section] @some_group invalid_group @valid_group"},
 		}, anomalies)
 	})
@@ -323,7 +323,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(2, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "section-heading",
 			LineNo:              1,
 			Raw:                 "^[section]",
@@ -333,7 +333,7 @@ func TestParse(t *testing.T) {
 			Spaces:              "",
 			Owners:              nil,
 		}, codeOwnersLines[0])
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:        "unknown",
 			LineNo:      2,
 			Raw:         "*",
@@ -341,7 +341,7 @@ func TestParse(t *testing.T) {
 		}, codeOwnersLines[1])
 
 		assert.Equal(1, len(anomalies))
-		assert.Equal([]Anomaly{
+		assert.Equal(Anomalies{
 			{LineNo: 2, Reason: "Unknown line type", Raw: "*"},
 		}, anomalies)
 	})
@@ -351,7 +351,7 @@ func TestParse(t *testing.T) {
 		codeOwnersLines, anomalies := Parse(content)
 
 		assert.Equal(2, len(codeOwnersLines))
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:                "section-heading",
 			LineNo:              1,
 			Raw:                 "^[section] invalid_user",
@@ -361,7 +361,7 @@ func TestParse(t *testing.T) {
 			Spaces:              " ",
 			Owners:              []Owner{{Name: "invalid_user", Type: "invalid"}},
 		}, codeOwnersLines[0])
-		assert.Equal(CodeOwnersLine{
+		assert.Equal(Line{
 			Type:        "unknown",
 			LineNo:      2,
 			Raw:         "*",
@@ -369,7 +369,7 @@ func TestParse(t *testing.T) {
 		}, codeOwnersLines[1])
 
 		assert.Equal(2, len(anomalies))
-		assert.Equal([]Anomaly{
+		assert.Equal(Anomalies{
 			{LineNo: 1, Reason: "Invalid user 'invalid_user'", Raw: "^[section] invalid_user"},
 			{LineNo: 2, Reason: "Unknown line type", Raw: "*"},
 		}, anomalies)

@@ -1,9 +1,10 @@
-package things
+package teams
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/sverweij/vcodeowners/internal/codeowners"
 )
 
 func TestParseTeamMap(t *testing.T) {
@@ -11,14 +12,14 @@ func TestParseTeamMap(t *testing.T) {
 
 	t.Run("empty team map", func(t *testing.T) {
 		teamMapString := `{}`
-		teamMap, error := ParseTeamMap(teamMapString)
+		teamMap, error := Parse(teamMapString)
 
 		assert.Equal(0, len(teamMap))
 		assert.Nil(error)
 	})
 	t.Run("valid team map", func(t *testing.T) {
 		teamMapString := `{"team1": ["user1", "user2"], "team2": ["user3", "user4", "user5@somehwere.else.com"]}`
-		teamMap, error := ParseTeamMap(teamMapString)
+		teamMap, error := Parse(teamMapString)
 
 		assert.NotNil(teamMap)
 		assert.Equal(2, len(teamMap))
@@ -29,7 +30,7 @@ func TestParseTeamMap(t *testing.T) {
 
 	t.Run("valid team map, but one team member starts with an @", func(t *testing.T) {
 		teamMapString := `{"team1": ["user1", "@user-starts-with-at"]}`
-		teamMap, error := ParseTeamMap(teamMapString)
+		teamMap, error := Parse(teamMapString)
 		expected := "don't start team member names with an '@'; '@user-starts-with-at' (team 'team1', member 1)"
 
 		assert.Nil(teamMap)
@@ -42,7 +43,7 @@ func TestParseTeamMap(t *testing.T) {
 
 	t.Run("error: team map is an array", func(t *testing.T) {
 		teamMapString := `["it's", "a", "trap"]`
-		teamMap, error := ParseTeamMap(teamMapString)
+		teamMap, error := Parse(teamMapString)
 
 		assert.Nil(teamMap)
 		assert.NotNil(error)
@@ -54,7 +55,7 @@ func TestParseTeamMap(t *testing.T) {
 func TestApplyTeamMap(t *testing.T) {
 	assert := assert.New(t)
 	t.Run("replaces teams in CodeOwners CSTs - rule", func(t *testing.T) {
-		codeOwners := []CodeOwnersLine{
+		codeOwners := codeowners.CST{
 			{
 				Type:   "rule",
 				LineNo: 1,
@@ -62,7 +63,7 @@ func TestApplyTeamMap(t *testing.T) {
 
 				RulePattern: "*",
 				Spaces:      " ",
-				Owners: []Owner{
+				Owners: []codeowners.Owner{
 					{
 						Type: "user-or-group",
 						Name: "@team2",
@@ -79,11 +80,11 @@ func TestApplyTeamMap(t *testing.T) {
 				InlineComment: " comment with @team1",
 			},
 		}
-		teamMap := map[string][]string{
+		teamMap := Map{
 			"team1": {"user1", "user2"},
 			"team2": {"user3", "user4", "user5@somewhere.else.com"},
 		}
-		expectedCodeOwners := []CodeOwnersLine{
+		expectedCodeOwners := codeowners.CST{
 			{
 				Type:   "rule",
 				LineNo: 1,
@@ -91,7 +92,7 @@ func TestApplyTeamMap(t *testing.T) {
 
 				RulePattern: "*",
 				Spaces:      " ",
-				Owners: []Owner{
+				Owners: []codeowners.Owner{
 					{
 						Type: "user-or-group",
 						Name: "@user1",
@@ -120,13 +121,13 @@ func TestApplyTeamMap(t *testing.T) {
 				InlineComment: " comment with @team1",
 			},
 		}
-		transformedCodeOwners := ApplyTeamMap(codeOwners, teamMap)
+		transformedCodeOwners := Apply(codeOwners, teamMap)
 
 		assert.Equal(expectedCodeOwners, transformedCodeOwners)
 	})
 
 	t.Run("replaces teams in CodeOwners CSTs & uniqs them - rule", func(t *testing.T) {
-		codeOwners := []CodeOwnersLine{
+		codeOwners := codeowners.CST{
 			{
 				Type:   "rule",
 				LineNo: 1,
@@ -134,7 +135,7 @@ func TestApplyTeamMap(t *testing.T) {
 
 				RulePattern: "*",
 				Spaces:      " ",
-				Owners: []Owner{
+				Owners: []codeowners.Owner{
 					{
 						Type: "user-or-group",
 						Name: "@team2",
@@ -151,11 +152,11 @@ func TestApplyTeamMap(t *testing.T) {
 				InlineComment: " comment with @team1",
 			},
 		}
-		teamMap := map[string][]string{
+		teamMap := Map{
 			"team1": {"user1", "user2", "not@replaced.nl"},
 			"team2": {"user3", "user4", "user2", "user1", "user5@somewhere.else.com"},
 		}
-		expectedCodeOwners := []CodeOwnersLine{
+		expectedCodeOwners := codeowners.CST{
 			{
 				Type:   "rule",
 				LineNo: 1,
@@ -163,7 +164,7 @@ func TestApplyTeamMap(t *testing.T) {
 
 				RulePattern: "*",
 				Spaces:      " ",
-				Owners: []Owner{
+				Owners: []codeowners.Owner{
 					{
 						Type: "user-or-group",
 						Name: "@user1",
@@ -192,13 +193,13 @@ func TestApplyTeamMap(t *testing.T) {
 				InlineComment: " comment with @team1",
 			},
 		}
-		transformedCodeOwners := ApplyTeamMap(codeOwners, teamMap)
+		transformedCodeOwners := Apply(codeOwners, teamMap)
 
 		assert.Equal(expectedCodeOwners, transformedCodeOwners)
 	})
 
 	t.Run("replaces teams in CodeOwners CSTs - section-heading", func(t *testing.T) {
-		codeOwners := []CodeOwnersLine{
+		codeOwners := codeowners.CST{
 			{
 				Type:   "section-heading",
 				LineNo: 1,
@@ -208,7 +209,7 @@ func TestApplyTeamMap(t *testing.T) {
 				SectionName:         "some_section",
 				SectionMinApprovers: 0,
 				Spaces:              " ",
-				Owners: []Owner{
+				Owners: []codeowners.Owner{
 					{
 						Type: "user-or-group",
 						Name: "@team2",
@@ -230,11 +231,11 @@ func TestApplyTeamMap(t *testing.T) {
 				InlineComment: " comment with @team1",
 			},
 		}
-		teamMap := map[string][]string{
+		teamMap := Map{
 			"team1": {"user1", "user2"},
 			"team2": {"user3", "user4", "user5@somewhere.else.com"},
 		}
-		expectedCodeOwners := []CodeOwnersLine{
+		expectedCodeOwners := codeowners.CST{
 			{
 				Type:   "section-heading",
 				LineNo: 1,
@@ -244,7 +245,7 @@ func TestApplyTeamMap(t *testing.T) {
 				SectionName:         "some_section",
 				SectionMinApprovers: 0,
 				Spaces:              " ",
-				Owners: []Owner{
+				Owners: []codeowners.Owner{
 					{
 						Type: "user-or-group",
 						Name: "@user1",
@@ -273,13 +274,13 @@ func TestApplyTeamMap(t *testing.T) {
 				InlineComment: " comment with @team1",
 			},
 		}
-		transformedCodeOwners := ApplyTeamMap(codeOwners, teamMap)
+		transformedCodeOwners := Apply(codeOwners, teamMap)
 
 		assert.Equal(expectedCodeOwners, transformedCodeOwners)
 	})
 
 	t.Run("only sorts owners when the team map is empty", func(t *testing.T) {
-		codeOwners := []CodeOwnersLine{
+		codeOwners := codeowners.CST{
 			{
 				Type:   "rule",
 				LineNo: 1,
@@ -287,7 +288,7 @@ func TestApplyTeamMap(t *testing.T) {
 
 				RulePattern: "*",
 				Spaces:      " ",
-				Owners: []Owner{
+				Owners: []codeowners.Owner{
 					{
 						Type: "e-mail",
 						Name: "not@replaced.nl",
@@ -308,8 +309,8 @@ func TestApplyTeamMap(t *testing.T) {
 				InlineComment: " comment with @team1",
 			},
 		}
-		teamMap := map[string][]string{}
-		expectedCodeOwners := []CodeOwnersLine{
+		teamMap := Map{}
+		expectedCodeOwners := codeowners.CST{
 			{
 				Type:   "rule",
 				LineNo: 1,
@@ -317,7 +318,7 @@ func TestApplyTeamMap(t *testing.T) {
 
 				RulePattern: "*",
 				Spaces:      " ",
-				Owners: []Owner{
+				Owners: []codeowners.Owner{
 					{
 						Type: "user-or-group",
 						Name: "@team1",
@@ -338,7 +339,7 @@ func TestApplyTeamMap(t *testing.T) {
 				InlineComment: " comment with @team1",
 			},
 		}
-		transformedCodeOwners := ApplyTeamMap(codeOwners, teamMap)
+		transformedCodeOwners := Apply(codeOwners, teamMap)
 
 		assert.Equal(expectedCodeOwners, transformedCodeOwners)
 	})

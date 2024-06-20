@@ -1,4 +1,4 @@
-package things
+package codeowners
 
 import (
 	"fmt"
@@ -15,8 +15,8 @@ var ownerSeparatorPattern = regexp.MustCompile(`\s+`)
 var userOrGroupPattern = regexp.MustCompile("^@.+$")
 var emailPattern = regexp.MustCompile("^[^@]+@.+$")
 
-// CodeOwnersLine represents a line in a CODEOWNERS file
-type CodeOwnersLine struct {
+// Line represents a line in a CODEOWNERS file
+type Line struct {
 	// rule, section-heading, comment, ignorable-comment, empty, unknown,
 	Type   string `json:"type"`
 	LineNo int    `json:"lineNo"`
@@ -37,6 +37,9 @@ type CodeOwnersLine struct {
 	InlineComment string  `json:"inlineComment"`
 }
 
+// CST represents the Concrete Syntax Tree of a CODEOWNERS file
+type CST []Line
+
 // Owner represents an owner in rule or section-heading
 //
 // Types:
@@ -48,17 +51,6 @@ type Owner struct {
 	// user-or-group, e-mail, invalid
 	Type string `json:"type"`
 	Name string `json:"name"`
-}
-
-// Anomaly represents a problem in a CODEOWNERS file
-type Anomaly struct {
-	LineNo int    `json:"lineNo"`
-	Reason string `json:"reason"`
-	Raw    string `json:"raw"`
-}
-
-func (anomaly Anomaly) String() string {
-	return fmt.Sprintf("Line %4d, %s: \"%s\"", anomaly.LineNo, anomaly.Reason, anomaly.Raw)
 }
 
 type parseState struct {
@@ -109,11 +101,11 @@ func parseOwnersString(ownersString string) []Owner {
 	return parsedOwners
 }
 
-func parseSectionHeadLine(line string, lineNo int, state parseState) (CodeOwnersLine, parseState) {
+func parseSectionHeadLine(line string, lineNo int, state parseState) (Line, parseState) {
 	ownerlessSectionPatternMatches := sectionLineWithoutOwnersPattern.FindStringSubmatch(line)
 
 	if ownerlessSectionPatternMatches != nil {
-		return CodeOwnersLine{
+		return Line{
 			Type:   "section-heading",
 			LineNo: lineNo,
 			Raw:    line,
@@ -126,7 +118,7 @@ func parseSectionHeadLine(line string, lineNo int, state parseState) (CodeOwners
 
 	sectionHeadPatternMatches := sectionLinePattern.FindStringSubmatch(line)
 	if sectionHeadPatternMatches == nil {
-		return CodeOwnersLine{
+		return Line{
 			Type:   "unknown",
 			LineNo: lineNo,
 			Raw:    line,
@@ -142,7 +134,7 @@ func parseSectionHeadLine(line string, lineNo int, state parseState) (CodeOwners
 			break
 		}
 	}
-	return CodeOwnersLine{
+	return Line{
 			Type:   "section-heading",
 			LineNo: lineNo,
 			Raw:    line,
@@ -159,12 +151,12 @@ func parseSectionHeadLine(line string, lineNo int, state parseState) (CodeOwners
 		}
 }
 
-func parseRuleLine(line string, lineNo int, state parseState) CodeOwnersLine {
+func parseRuleLine(line string, lineNo int, state parseState) Line {
 
 	ruleLineWithoutUsersPatternMatches := ruleLineWithoutOwnersPattern.FindStringSubmatch(line)
 
 	if ruleLineWithoutUsersPatternMatches != nil && state.currentSectionHasValidUsers {
-		return CodeOwnersLine{
+		return Line{
 			Type:          "rule",
 			LineNo:        lineNo,
 			Raw:           line,
@@ -178,14 +170,14 @@ func parseRuleLine(line string, lineNo int, state parseState) CodeOwnersLine {
 	ruleLinePatternMatches := ruleLinePattern.FindStringSubmatch(line)
 
 	if ruleLinePatternMatches == nil {
-		return CodeOwnersLine{
+		return Line{
 			Type:        "unknown",
 			LineNo:      lineNo,
 			Raw:         line,
 			RuleSection: state.currentSection,
 		}
 	}
-	return CodeOwnersLine{
+	return Line{
 		Type:          "rule",
 		LineNo:        lineNo,
 		Raw:           line,
@@ -198,25 +190,25 @@ func parseRuleLine(line string, lineNo int, state parseState) CodeOwnersLine {
 
 }
 
-func parseLine(line string, lineNo int, state parseState) (CodeOwnersLine, parseState) {
+func parseLine(line string, lineNo int, state parseState) (Line, parseState) {
 	var trimmedLine = strings.TrimSpace(line)
 
 	if trimmedLine == "" {
-		return CodeOwnersLine{
+		return Line{
 			Type:   "empty",
 			LineNo: lineNo,
 			Raw:    line,
 		}, state
 	}
 	if strings.HasPrefix(trimmedLine, "#!") {
-		return CodeOwnersLine{
+		return Line{
 			Type:   "ignorable-comment",
 			LineNo: lineNo,
 			Raw:    line,
 		}, state
 	}
 	if strings.HasPrefix(trimmedLine, "#") {
-		return CodeOwnersLine{
+		return Line{
 			Type:   "comment",
 			LineNo: lineNo,
 			Raw:    line,
@@ -231,11 +223,11 @@ func parseLine(line string, lineNo int, state parseState) (CodeOwnersLine, parse
 
 // Parse parses the content of a CODEOWNERS file and returns a CST (and a list
 // of syntax errors and other anomalies)
-func Parse(content string) ([]CodeOwnersLine, []Anomaly) {
-	var codeOwnersLines []CodeOwnersLine
-	var anomalies []Anomaly
+func Parse(content string) (CST, Anomalies) {
+	var codeOwnersLines CST
+	var anomalies Anomalies
 	var state parseState
-	var parsedLine CodeOwnersLine
+	var parsedLine Line
 
 	lines := strings.Split(content, "\n")
 	for lineNo, line := range lines {

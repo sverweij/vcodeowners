@@ -1,4 +1,4 @@
-package things
+package codeowners
 
 import (
 	"os"
@@ -27,7 +27,7 @@ func TestFormatCodeOwners(t *testing.T) {
 				assert.Nil(errorExpected)
 
 				parsed, _ := Parse(string(content))
-				found, _ := FormatCSTAsCodeOwners(parsed, "")
+				found, _ := parsed.Format("")
 
 				assert.Equal(string(expected), found)
 			})
@@ -37,7 +37,7 @@ func TestFormatCodeOwners(t *testing.T) {
 		content := `* @owner`
 		parsed, _ := Parse(content)
 		expected := `# The man in black fled across the desert, and the gunslinger followed.`
-		found, _ := FormatCSTAsCodeOwners(parsed, "# The man in black fled across the desert, and the gunslinger followed.")
+		found, _ := parsed.Format("# The man in black fled across the desert, and the gunslinger followed.")
 
 		assert.Contains(found, expected)
 	})

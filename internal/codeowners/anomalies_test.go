@@ -1,4 +1,4 @@
-package things
+package codeowners
 
 import (
 	"testing"
@@ -6,11 +6,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFormatAnomalies(t *testing.T) {
+func TestString(t *testing.T) {
 	assert := assert.New(t)
 
 	t.Run("invalid lines", func(t *testing.T) {
-		var anomalies = []Anomaly{
+		var anomalies = Anomalies{
 			{
 				LineNo: 42,
 				Reason: "Unknown line type",
@@ -19,7 +19,7 @@ func TestFormatAnomalies(t *testing.T) {
 		}
 
 		expected := "Syntax errors found in the input:\n  Line   42, Unknown line type: \"invalid line\"\n"
-		found := FormatAnomaliesAsText(anomalies)
+		found := anomalies.String()
 
 		assert.Equal(expected, found)
 	})

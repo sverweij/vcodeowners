@@ -1,8 +1,11 @@
-package things
+package labeler
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/sverweij/vcodeowners/internal/codeowners"
+	"github.com/sverweij/vcodeowners/internal/teams"
 )
 
 // transform takes a string and returns a string that is equivalent in the
@@ -44,7 +47,7 @@ func transform(pOriginalString string) string {
 }
 
 // getPatternsForTeam returns the patterns CODEOWNERS has for a given team.
-func getPatternsForTeam(team string, lines []CodeOwnersLine) []string {
+func getPatternsForTeam(team string, lines codeowners.CST) []string {
 	returnValue := []string{}
 
 	for _, line := range lines {
@@ -60,9 +63,9 @@ func getPatternsForTeam(team string, lines []CodeOwnersLine) []string {
 	return returnValue
 }
 
-// FormatCSTAsLabelerYML takes CST (a slice of CodeOwnersLines) and returns them
+// FormatCST takes CST (a slice of CodeOwnersLines) and returns them
 // in the format of a labeler.yml file.
-func FormatCSTAsLabelerYML(lines []CodeOwnersLine, teamMap map[string][]string, headerComment string) (string, error) {
+func FormatCST(lines codeowners.CST, teamMap teams.Map, headerComment string) (string, error) {
 	returnValue := headerComment
 
 	for team := range teamMap {

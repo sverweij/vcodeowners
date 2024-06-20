@@ -7,7 +7,10 @@ import (
 	"io"
 	"os"
 
-	"github.com/sverweij/vcodeowners/internal/things"
+	"github.com/sverweij/vcodeowners/internal/codeowners"
+	"github.com/sverweij/vcodeowners/internal/json"
+	"github.com/sverweij/vcodeowners/internal/labeler"
+	"github.com/sverweij/vcodeowners/internal/teams"
 )
 
 const VERSION = "0.0.1"
@@ -81,16 +84,16 @@ func cli(options cliOptionsType) (string, error) {
 		return "", readFileError
 	}
 
-	codeOwnersLines, syntaxErrors := things.Parse(string(bytes))
+	codeOwnersLines, syntaxErrors := codeowners.Parse(string(bytes))
 
 	if len(syntaxErrors) > 0 && (*options.validate != "skip") {
 		if *options.validate == "fail" {
-			return "", fmt.Errorf("%s", things.FormatAnomaliesAsText(syntaxErrors))
+			return "", fmt.Errorf("%s", syntaxErrors.String())
 		}
-		returnMessage = returnMessage + things.FormatAnomaliesAsText(syntaxErrors)
+		returnMessage = returnMessage + syntaxErrors.String()
 	}
 
-	teamMap := map[string][]string{}
+	teamMap := teams.Map{}
 
 	if *options.teamMap != "" {
 		teamMapBytes, teamMapReadError := os.ReadFile(*options.teamMap)
@@ -98,14 +101,14 @@ func cli(options cliOptionsType) (string, error) {
 			return "", teamMapReadError
 		}
 		var teamMapParseError error
-		teamMap, teamMapParseError = things.ParseTeamMap(string(teamMapBytes))
+		teamMap, teamMapParseError = teams.Parse(string(teamMapBytes))
 		if teamMapParseError != nil {
 			return "", teamMapParseError
 		}
 	}
-	transformedCodeOwnersLines := things.ApplyTeamMap(codeOwnersLines, teamMap)
+	transformedCodeOwnersLines := teams.Apply(codeOwnersLines, teamMap)
 
-	formatted, formatError := things.FormatCSTAsCodeOwners(transformedCodeOwnersLines, string(codeOwnersHeaderComment))
+	formatted, formatError := transformedCodeOwnersLines.Format(string(codeOwnersHeaderComment))
 	if formatError != nil {
 		return "", formatError
 	}
@@ -117,7 +120,7 @@ func cli(options cliOptionsType) (string, error) {
 		}
 		returnMessage = returnMessage + fmt.Sprintf("\nWrote '%s'\n", *options.codeOwners)
 		if *options.emitLabeler {
-			labelerFormatted, labelerFormatError := things.FormatCSTAsLabelerYML(codeOwnersLines, teamMap, string(labelerHeaderComment))
+			labelerFormatted, labelerFormatError := labeler.FormatCST(codeOwnersLines, teamMap, string(labelerHeaderComment))
 			if labelerFormatError != nil {
 				return "", labelerFormatError
 			}
@@ -131,7 +134,7 @@ func cli(options cliOptionsType) (string, error) {
 	}
 
 	if *options.json {
-		jsonFormatted, jsonFormatError := things.FormatCSTAsJSON(transformedCodeOwnersLines)
+		jsonFormatted, jsonFormatError := json.FormatCST(transformedCodeOwnersLines)
 		if jsonFormatError != nil {
 			return "", jsonFormatError
 		}

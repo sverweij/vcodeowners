@@ -1,4 +1,4 @@
-package things
+package json
 
 import (
 	"os"
@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/sverweij/vcodeowners/internal/codeowners"
 )
 
 const JSON_TEST_DIR = "testdata/json"
@@ -26,8 +27,8 @@ func TestFormatJSON(t *testing.T) {
 				expected, errorExpected := os.ReadFile(filepath.Join(JSON_TEST_DIR, root+".json"))
 				assert.Nil(errorExpected)
 
-				parsed, _ := Parse(string(content))
-				found, _ := FormatCSTAsJSON(parsed)
+				parsed, _ := codeowners.Parse(string(content))
+				found, _ := FormatCST(parsed)
 
 				assert.Equal(string(expected), found)
 			})
